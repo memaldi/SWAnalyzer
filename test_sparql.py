@@ -46,6 +46,11 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
         result_links = len(self.sparql_analyzer.get_all_links())
         self.assertEqual(result_links, expected_links)
 
+    def test_get_uri_pattern(self):
+        expected_uri_pattern = 'http://www.morelab.deusto.es/resource/'
+        result_uri_pattern = self.sparql_analyzer.get_uri_pattern()
+        self.assertEqual(result_uri_pattern, expected_uri_pattern)
+
 class SPARQLAnalyzerInitialitation(unittest.TestCase):
 
     def setUp(self):
