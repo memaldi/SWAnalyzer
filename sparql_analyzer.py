@@ -47,6 +47,7 @@ class SPARQLAnalyzer(SWAnalyzer):
             offset = (self.LIMIT * it)
             it = it + 1
             self.graph.commit()
+        SWAnalyzer.load_graph(self)
 
     def close(self):
         SWAnalyzer.close(self)
