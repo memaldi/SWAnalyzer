@@ -56,6 +56,11 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
         result_entities = len(self.sparql_analyzer.get_entities())
         self.assertEqual(result_entities, expected_entities)
 
+    def test_get_outgoing_links(self):
+        expected_outgoing_links = 997
+        result_outgoing_links = len(self.sparql_analyzer.get_outgoing_links())
+        self.assertEqual(result_outgoing_links, expected_outgoing_links)
+
 class SPARQLAnalyzerInitialitation(unittest.TestCase):
 
     def setUp(self):

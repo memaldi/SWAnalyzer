@@ -68,27 +68,34 @@ class SWAnalyzer:
         qres = self.graph.query(query)
         return qres.result
 
+    def get_outgoing_links(self):
+        query = '''SELECT  COUNT(?o) WHERE { ?s ?p ?o . 
+FILTER ((!isBlank(?o)) && !regex(str(?o), "^http://www.morelab.deusto.es/resource/") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
+        qres = self.graph.query(query)
+        return qres.result
+
     def get_uri_pattern(self):
         subjects = self.get_subjects()
-        return self.get_patterns(subjects)
+        subject_list = []
+        for subject in subjects:
+            subject_list.append(str(subject[0]))
+        return self.get_patterns(subject_list)
 
     def get_patterns(self, collection):
-        uri_patterns = {}
-        for subject in collection:
-            if len(uri_patterns) == 0 and subject[0].find('http://') != -1:
-                uri_patterns[str(subject[0])] = 1
-            else:
-                for key in uri_patterns.keys():
-                    temp_substr = ld_utils.LongestCommonSubstring(key, str(subject[0]))
-                    if temp_substr.find('http://') != -1:
-                        if temp_substr in uri_patterns.keys():
-                            uri_patterns[temp_substr] = uri_patterns[temp_substr] + 1
-                        else:
-                            uri_patterns[temp_substr] = 1
-        high_index = -1
-        high_index_key = ''
-        for key in uri_patterns.keys():
-            if high_index < uri_patterns[key]:
-                high_index = uri_patterns[key]
-                high_index_key = key
-        return high_index_key
+        substr_dict = {}
+        collection_2 = collection
+        for item in collection:
+            for item_2 in collection_2:
+                substr = ld_utils.LongestCommonSubstring(item, item_2)
+                if substr.find('http://') == 0:
+                    if substr in substr_dict.keys():
+                        substr_dict[substr] = substr_dict[substr] + 1
+                    else:
+                        substr_dict[substr] = 1
+        max_value = -1
+        max_key = ''
+        for key in substr_dict.keys():
+            if substr_dict[key] > max_value:
+                max_value = substr_dict[key]
+                max_key = key
+        return max_key
