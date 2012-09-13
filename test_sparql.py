@@ -51,6 +51,11 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
         result_uri_pattern = self.sparql_analyzer.get_uri_pattern()
         self.assertEqual(result_uri_pattern, expected_uri_pattern)
 
+    def test_get_entities(self):
+        expected_entities = 192
+        result_entities = len(self.sparql_analyzer.get_entities())
+        self.assertEqual(result_entities, expected_entities)
+
 class SPARQLAnalyzerInitialitation(unittest.TestCase):
 
     def setUp(self):

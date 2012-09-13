@@ -57,7 +57,8 @@ class SWAnalyzer:
         return qres.result
         
     def get_entities(self):
-        query = 'SELECT DISTINCT ?s WHERE { ?s a [] . FILTER ((!isBlank(?s)) && regex(str(?s), "^' + self.get_uri_pattern(graph) + '"))}'
+        query = 'SELECT DISTINCT ?s WHERE { ?s a [] . FILTER ((!isBlank(?s)) && regex(str(?s), "^' + self.get_uri_pattern() + '"))}'
+        print query
         qres = self.graph.query(query)
         return qres.result
 
