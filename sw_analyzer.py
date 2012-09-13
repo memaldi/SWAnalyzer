@@ -58,7 +58,6 @@ class SWAnalyzer:
         
     def get_entities(self):
         query = 'SELECT DISTINCT ?s WHERE { ?s a [] . FILTER ((!isBlank(?s)) && regex(str(?s), "^' + self.get_uri_pattern() + '"))}'
-        print query
         qres = self.graph.query(query)
         return qres.result
 
@@ -69,8 +68,8 @@ class SWAnalyzer:
         return qres.result
 
     def get_outgoing_links(self):
-        query = '''SELECT  COUNT(?o) WHERE { ?s ?p ?o . 
-FILTER ((!isBlank(?o)) && !regex(str(?o), "^http://www.morelab.deusto.es/resource/") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
+        query = '''SELECT ?o WHERE { ?s ?p ?o . 
+FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.get_uri_pattern() + '''") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
         qres = self.graph.query(query)
         return qres.result
 
