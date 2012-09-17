@@ -1,14 +1,18 @@
 import unittest
+import cProfile
+import time
 from sparql_analyzer import SPARQLAnalyzer
 
 class SPARQLAnalyzerTestCase(unittest.TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
         self.sparql_analyzer = SPARQLAnalyzer('http://www.morelab.deusto.es/joseki/articles')
         self.sparql_analyzer.open()
         self.sparql_analyzer.load_graph()
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(self):
         self.sparql_analyzer.close()
 
     def test_get_classes(self):
@@ -47,9 +51,13 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
         self.assertEqual(result_links, expected_links)
 
     def test_get_uri_pattern(self):
+        #t1 = time.time()
         expected_uri_pattern = 'http://www.morelab.deusto.es/resource/'
         result_uri_pattern = self.sparql_analyzer.get_uri_pattern()
-        self.assertEqual(result_uri_pattern, expected_uri_pattern)
+        #t2 = time.time()
+        #print t2-t1
+        #print result_uri_pattern
+        self.assertEqual(result_uri_pattern[1], expected_uri_pattern)
 
     def test_get_entities(self):
         expected_entities = 192
@@ -60,6 +68,11 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
         expected_outgoing_links = 997
         result_outgoing_links = len(self.sparql_analyzer.get_outgoing_links())
         self.assertEqual(result_outgoing_links, expected_outgoing_links)
+
+    '''def test_get_patterns(self):
+        expected_pattern = 'http://www.morelab.deusto.es/resource/'
+        result_pattern = self.sparql_analyzer.get_patterns(url_list)
+        self.assertEqual(result_pattern, expected_pattern)'''
 
 class SPARQLAnalyzerInitialitation(unittest.TestCase):
 
@@ -77,4 +90,4 @@ class SPARQLAnalyzerInitialitation(unittest.TestCase):
         self.assertEqual(result_triples, expected_triples)
 
 if __name__ == '__main__':
-    unittest.main()
+    cProfile.run('unittest.main()', 'testprof')

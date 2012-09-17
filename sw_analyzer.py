@@ -1,6 +1,8 @@
 import abc
 import os
 import ld_utils
+import namespace_finder
+import time
 from rdflib import plugin
 from rdflib.store import Store
 from rdflib.graph import Graph
@@ -23,7 +25,7 @@ class SWAnalyzer:
             os.rmdir(self.path)
 
     def load_graph(self):
-        self.uri_pattern = self.get_uri_pattern()
+        self.uri_pattern = self.get_uri_pattern()[1]
 
     def get_classes(self):    
         query = 'SELECT DISTINCT ?class WHERE { [] a ?class }'
@@ -38,6 +40,12 @@ class SWAnalyzer:
     def get_subjects(self):
         query = 'SELECT DISTINCT ?s WHERE { ?s ?p ?o }'
         qres = self.graph.query(query)
+        subject_list = []
+        '''for subject in qres.result:
+            subject_list.append(str(subject[0]))
+        f = open('subjects', 'w')
+        f.write(str(subject_list))
+        f.close()'''
         return qres.result
         
     def get_objects(self):
@@ -80,24 +88,11 @@ FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isI
         return self.get_patterns(subject_list)
 
     def get_patterns(self, collection):
-        substr_dict = {}
+        processes = 10
         collection = [e for e in collection if e.find('http://') == 0]
-        '''for item in collection:
-            if item.find('http://') != 0:
-                collection.remove(item)'''
-        for i in range(0, len(collection)):
-            item_i = collection[i]
-            for j in range(i + 1, len(collection)):
-                item_j = collection[j]
-                substr = ld_utils.LongestCommonSubstring(item_i, item_j)
-                if substr in substr_dict.keys():
-                    substr_dict[substr] = substr_dict[substr] + 1
-                else:
-                    substr_dict[substr] = 1
-        max_value = -1
-        max_key = ''
-        for key in substr_dict.keys():
-            if substr_dict[key] > max_value:
-                max_value = substr_dict[key]
-                max_key = key
-        return max_key
+        #initial = time.time()
+        result = namespace_finder.find_pattern(collection, branches = processes, subprocesses = True, verbose = False)
+        #end = time.time()
+        #print "%s elements. %s processes, result: %s; time: %.2f second" % (len(collection), processes, str(result), end - initial)
+        #print result
+        return result
