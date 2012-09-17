@@ -19,49 +19,52 @@ def _map_impl(urls):
             previous_dict = previous_dict[c][1]
     return data
 
-def _reduce_impl(urls_base, urls_new):
-    for key in urls_new:
+def _search_base(datas, parent):
+    valued_keys = {}
 
-        if not key in urls_base:
-            urls_base[key] = copy.deepcopy(urls_new[key])
+    value = 0
 
-        else:
-            val1, dict_urls_new  = urls_new[key]
-            val2, dict_urls_base = urls_base[key]
-            urls_base[key] = (val1 + val2, _reduce_impl(dict_urls_base, dict_urls_new))
+    for data in datas:
+        if isinstance(data, dict):
+            continue
 
-    return urls_base
+        current_value, data_dict = data
+        value += current_value
 
-def _search_base(data, parent):
-    if isinstance(data, dict) or len(data[1].keys()) == 0:
+        if not isinstance(data_dict, dict):
+            print "ERROR: data_dict is a %s; data was %s with len = %s; data_dict len = %s; cur_value is %s" % (str(type(data_dict)), type(data), len(data), len(data_dict), type(current_value))
+
+        for key in data_dict:
+            child_value, _ = data_dict[key]
+            if key not in valued_keys:
+                valued_keys[key] = child_value
+            else:
+                valued_keys[key] += child_value
+
+    valued_keys = valued_keys.items()
+    if len(valued_keys) == 0:
         return 0, parent
-    
-    value, new_data = data
-
-    valued_keys = []
-    
-    for key in new_data:
-        child_value, _ = new_data[key]
-        valued_keys.append( (key, child_value) )
 
     next_key, max_pos = max(valued_keys, key = lambda x : x[1])
+
+    new_datas = [ data[1][next_key] for data in datas if next_key in data[1] ]
     
-    child_value, route = _search_base(new_data[next_key], parent + next_key + '/')
+    child_value, route = _search_base(new_datas, parent + next_key + '/')
     if parent == 'http:/':
         return child_value, route
     elif child_value * (1.0 + PERCENT) >= value:
         return child_value, route
     else:
         return value, parent
-
-
-def _search(data):
-    return _search_base((0, data), '')
+       
+def _search(datas):
+    return _search_base([(0, data) for data in datas], '')
 
 def find_pattern(dataset, branches = 5, subprocesses = False, verbose = False):
-
     if branches > len(dataset):
         branches = len(dataset)
+
+    
 
     slot_size = len(dataset) / branches
     current_slot = 0
@@ -75,6 +78,7 @@ def find_pattern(dataset, branches = 5, subprocesses = False, verbose = False):
         if current_slot == 0:
             current_dataset = []
             datasets.append(current_dataset)
+    
     if verbose:
         initial_map = time.time()
 
@@ -85,23 +89,16 @@ def find_pattern(dataset, branches = 5, subprocesses = False, verbose = False):
         results = map(_map_impl, datasets)
 
     if verbose:
-        initial_reduce = time.time()
-        print "Map finished: %.2f " % (initial_reduce - initial_map)
+        initial_search = time.time()
+        print "Map finished: %.2f " % (initial_search - initial_map)
 
-    reduced_results = reduce(_reduce_impl, results, {})
-
-    if verbose:
-        end_reduce = time.time()
-        print "Reduce finished: %.2f" % (end_reduce - initial_reduce)
-        # print "Processing: ", json.dumps(reduced_results, indent = 4)
-
-
-    result = _search(reduced_results)
+    result = _search(results)
 
     if verbose:
         end_search = time.time()
-        print "Search finished: %.2f" % (end_search - end_reduce)
+        print "Search finished: %.2f" % (end_search - initial_search)
 
     result = (result[0], result[1].replace('http:/', 'http://'))
     return result
+
 
