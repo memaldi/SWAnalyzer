@@ -74,6 +74,9 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
         result_pattern = self.sparql_analyzer.get_patterns(url_list)
         self.assertEqual(result_pattern, expected_pattern)'''
 
+    def test_get_linksets(self):
+        result_linksets = self.sparql_analyzer.get_linksets()
+
 class SPARQLAnalyzerInitialitation(unittest.TestCase):
 
     def setUp(self):
@@ -90,4 +93,4 @@ class SPARQLAnalyzerInitialitation(unittest.TestCase):
         self.assertEqual(result_triples, expected_triples)
 
 if __name__ == '__main__':
-    cProfile.run('unittest.main()', 'testprof')
+    unittest.main()

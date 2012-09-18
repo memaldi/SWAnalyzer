@@ -1,12 +1,17 @@
+#encoding: utf-8
+
 import abc
 import os
 import ld_utils
 import namespace_finder
 import time
+import httplib
 from rdflib import plugin
 from rdflib.store import Store
 from rdflib.graph import Graph
 from tempfile import mkdtemp
+from django.core.validators import URLValidator
+from urlparse import urlparse
 
 class SWAnalyzer:
     def __init__(self):
@@ -96,3 +101,56 @@ FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isI
         #print "%s elements. %s processes, result: %s; time: %.2f second" % (len(collection), processes, str(result), end - initial)
         #print result
         return result
+
+    def get_linksets(self):
+        temp_links = self.get_outgoing_links()
+        empty = False
+        out_datasets = []
+        outgoing_links = []
+        val = URLValidator(verify_exists=False)
+        for obj in temp_links:
+            try:
+                val(str(obj[0].encode('utf-8')))
+                outgoing_links.append(str(obj[0].encode('utf-8')))
+            except:
+                pass
+        while not empty:
+            out_pattern = self.get_patterns(outgoing_links)
+            outgoing_links = [e for e in outgoing_links if (e.find(out_pattern[1]) != 0) and ((e + '/').find(out_pattern[1]) != 0)]
+            #print outgoing_links
+            #print out_pattern
+            #print len(outgoing_links)
+            out_datasets.append(out_pattern[1])
+            if len(outgoing_links) == 0:
+                empty = True
+        headers = {"Accept": "application/rdf+xml"}
+        linksets = {}
+        for item in out_datasets:
+            #print item
+            objs = self.check_for_ld(item)
+            for obj in objs:
+                #print str(obj[0])
+                url = urlparse(str(obj[0]))
+                conn = httplib.HTTPConnection(url.netloc)
+                conn.request("GET", url.path, "", headers)
+                response = conn.getresponse()
+                #print response.status
+                if response.status in [202, 303]:
+                    query = 'SELECT ?p WHERE {?s ?p <' + str(obj[0]) + '>}'
+                    qres = self.graph.query(query)
+                    result = qres.result
+                    for p in result:
+                        if item in linksets:
+                            if str(p[0]) in linksets[item]:
+                                linksets[item][str(p[0])] = linksets[item][str(p[0])] + 1
+                            else:
+                                linksets[item][str(p[0])] = 1
+                        else:
+                            linksets[item] = {str(p[0]): 1}
+        #print linksets
+        return linksets
+
+    def check_for_ld(self, prefix):
+        query = 'SELECT DISTINCT ?o WHERE {?s ?p ?o . FILTER (regex(str(?o), "^' + prefix + '", "i") && !regex(str(?o), "' + self.uri_pattern + '", "i"))}'
+        qres = self.graph.query(query)
+        return qres.result
