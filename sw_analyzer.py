@@ -6,68 +6,67 @@ import ld_utils
 import namespace_finder
 import time
 import httplib
+import redis
 from rdflib import plugin
 from rdflib import store
 from rdflib.store import Store
 from rdflib.graph import Graph
+from rdflib.term import URIRef
 from tempfile import mkdtemp
 from django.core.validators import URLValidator
 from urlparse import urlparse
 from multiprocessing import Pool
 
-def get_obj_from_prefix(prefix, graph, uri_pattern):
-        query = 'SELECT DISTINCT ?o WHERE {?s ?p ?o . FILTER (regex(str(?o), "^' + prefix + '", "i") && !regex(str(?o), "' + uri_pattern + '", "i"))}'
-        qres = graph.query(query)
-        return qres.result
+#TODO: take these parameters from a configuration file
+configString = "user=postgres,password=p0stgr3s,host=localhost,db=rdfstore"
+plugin.register('PostgreSQL', store.Store,'rdflib_postgresql.PostgreSQL', 'PostgreSQL')
+identifier = URIRef('http://rdfstore/')
 
-def check_for_semantic(args):
-    out_datasets = args[0]
-    graph = args[1]
-    print 'GRAPHHHH!!: ' + str(len(graph))
-    uri_pattern = args[2]
-    print args
-    for item in out_datasets:
-        #print item
-        objs = get_obj_from_prefix(item, graph, uri_pattern='')
-        for obj in objs:
-            #print str(obj[0])
-            url = urlparse(str(obj[0]))
-            conn = httplib.HTTPConnection(url.netloc)
-            conn.request("GET", url.path, "", headers)
-            response = conn.getresponse()
-            #print response.status
-            if response.status in [202, 303]:
-                query = 'SELECT ?p WHERE {?s ?p <' + str(obj[0]) + '>}'
-                qres = graph.query(query)
-                result = qres.result
-                for p in result:
-                    if item in linksets:
-                        if str(p[0]) in linksets[item]:
-                            linksets[item][str(p[0])] = linksets[item][str(p[0])] + 1
-                        else:
-                            linksets[item][str(p[0])] = 1
+def get_obj_from_prefix(prefix, graph, uri_pattern):
+    query = 'SELECT DISTINCT ?o WHERE {?s ?p ?o . FILTER (regex(str(?o), "^' + prefix + '", "i") && !regex(str(?o), "^' + uri_pattern + '", "i"))}'
+    qres = graph.query(query)
+    return qres.result
+
+def check_for_semantic(dataset):
+    r_server = redis.Redis("localhost")
+    uri_pattern = r_server.get("uri_pattern")
+    g = Graph(store='PostgreSQL', identifier=identifier)
+    g.open(configString, create=False)
+    objs = get_obj_from_prefix(dataset, g, uri_pattern)
+    headers = {"Accept": "application/rdf+xml"}
+    linksets = {}
+    for obj in objs:
+        url = urlparse(str(obj[0]))
+        conn = httplib.HTTPConnection(url.netloc)
+        conn.request("GET", url.path, "", headers)
+        response = conn.getresponse()
+        if response.status in [202, 303]:
+            query = 'SELECT ?p WHERE {?s ?p <' + str(obj[0]) + '>}'
+            qres = g.query(query)
+            result = qres.result
+            for p in result:
+                if dataset in linksets:
+                    if str(p[0]) in linksets[dataset]:
+                        linksets[dataset][str(p[0])] = linksets[dataset][str(p[0])] + 1
                     else:
-                        linksets[item] = {str(p[0]): 1}
+                        linksets[dataset][str(p[0])] = 1
+                else:
+                    linksets[dataset] = {str(p[0]): 1}
+    return linksets
 
 class SWAnalyzer:
     def __init__(self):
-        #store = plugin.get('PostgreSQL', Store)('rdfstore')
-        self.configString="user=postgres,password=p0stgr3s,host=localhost,db=rdfstore"
-        plugin.register('PostgreSQL', store.Store,'rdflib_postgresql.PostgreSQL', 'PostgreSQL')
-        self.graph = Graph(store='PostgreSQL')
-        #self.graph.destroy(None)
+        self.graph = Graph(store='PostgreSQL', identifier=identifier)
+        self.r_server = redis.Redis("localhost")
 
     #@abc.abstractmethod
     def open(self):
-       self.graph.open(self.configString, create=True)
+       self.graph.open(configString, create=True)
        return
 
     def close(self):
-        self.graph.destroy(self.configString)
+        self.graph.destroy(None)
         self.graph.close()
-        '''for f in os.listdir(self.path):
-            os.unlink(self.path + '/' + f)
-            os.rmdir(self.path)'''
 
     def load_graph(self):
         self.uri_pattern = self.get_uri_pattern()[1]
@@ -142,7 +141,7 @@ FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isI
         #print result
         return result
 
-    def get_linksets(self):
+    def get_linksets(self, branches=5):
         temp_links = self.get_outgoing_links()
         empty = False
         out_datasets = []
@@ -157,17 +156,17 @@ FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isI
         while not empty:
             out_pattern = self.get_patterns(outgoing_links)
             outgoing_links = [e for e in outgoing_links if (e.find(out_pattern[1]) != 0) and ((e + '/').find(out_pattern[1]) != 0)]
-            #print outgoing_links
-            #print out_pattern
-            #print len(outgoing_links)
             out_datasets.append(out_pattern[1])
             if len(outgoing_links) == 0:
                 empty = True
-        headers = {"Accept": "application/rdf+xml"}
+        if len(out_datasets) < branches:
+            branches = len(out_datasets)
+        pool = Pool(branches)
+        self.r_server.set("uri_pattern", self.uri_pattern)
+        result = pool.map(check_for_semantic, out_datasets)
         linksets = {}
-        pool = Pool(5)
-        print pool.map(check_for_semantic, (out_datasets, self.graph, self.uri_pattern))
-        #print linksets
+        for item in result:
+            temp_dict = eval(str(item))
+            for key in temp_dict.keys():
+                linksets[key] = temp_dict[key]
         return linksets
-
-    

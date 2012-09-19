@@ -75,7 +75,9 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
         self.assertEqual(result_pattern, expected_pattern)'''
 
     def test_get_linksets(self):
+        expected_linksets = eval("{'http://dbpedia.org/': {'http://xmlns.com/foaf/0.1/based_near': 1, 'http://xmlns.com/foaf/0.1/topic_interest': 5, 'http://xmlns.com/foaf/0.1/interest': 42}, 'http://dblp.rkbexplorer.com/id/': {'http://www.w3.org/2002/07/owl#sameAs': 36}, 'http://dx.doi.org/': {'http://www.w3.org/2000/01/rdf-schema#seeAlso': 18}}")
         result_linksets = self.sparql_analyzer.get_linksets()
+        self.assertEqual(result_linksets, expected_linksets)
 
 class SPARQLAnalyzerInitialitation(unittest.TestCase):
 
