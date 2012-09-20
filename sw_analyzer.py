@@ -52,7 +52,7 @@ def check_for_semantic((dataset, uri_pattern, identifier)):
                     else:
                         linksets[dataset] = {str(p[0]): 1}
         except:
-            print dataset + ' timed out!'
+            #print dataset + ' timed out!'
             return linksets
     return linksets
 
