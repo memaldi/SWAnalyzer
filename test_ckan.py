@@ -20,6 +20,5 @@ class CKANTestCase(unittest.TestCase):
         result_datasets = self.ckan.get_datasets_from_group('lodcloud')
         self.assertEqual(result_datasets, expected_datasets)
 
-
 if __name__ == '__main__':
     unittest.main()
