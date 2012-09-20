@@ -16,48 +16,50 @@ from tempfile import mkdtemp
 from django.core.validators import URLValidator
 from urlparse import urlparse
 from multiprocessing import Pool
+from itertools import repeat
 
 #TODO: take these parameters from a configuration file
 configString = "user=postgres,password=p0stgr3s,host=localhost,db=rdfstore"
 plugin.register('PostgreSQL', store.Store,'rdflib_postgresql.PostgreSQL', 'PostgreSQL')
-identifier = URIRef('http://rdfstore/')
 
 def get_obj_from_prefix(prefix, graph, uri_pattern):
     query = 'SELECT DISTINCT ?o WHERE {?s ?p ?o . FILTER (regex(str(?o), "^' + prefix + '", "i") && !regex(str(?o), "^' + uri_pattern + '", "i"))}'
     qres = graph.query(query)
     return qres.result
 
-def check_for_semantic(dataset):
-    r_server = redis.Redis("localhost")
-    uri_pattern = r_server.get("uri_pattern")
+def check_for_semantic((dataset, uri_pattern, identifier)):
     g = Graph(store='PostgreSQL', identifier=identifier)
     g.open(configString, create=False)
     objs = get_obj_from_prefix(dataset, g, uri_pattern)
     headers = {"Accept": "application/rdf+xml"}
     linksets = {}
     for obj in objs:
-        url = urlparse(str(obj[0]))
-        conn = httplib.HTTPConnection(url.netloc)
-        conn.request("GET", url.path, "", headers)
-        response = conn.getresponse()
-        if response.status in [202, 303]:
-            query = 'SELECT ?p WHERE {?s ?p <' + str(obj[0]) + '>}'
-            qres = g.query(query)
-            result = qres.result
-            for p in result:
-                if dataset in linksets:
-                    if str(p[0]) in linksets[dataset]:
-                        linksets[dataset][str(p[0])] = linksets[dataset][str(p[0])] + 1
+        try:
+            url = urlparse(str(obj[0]))
+            conn = httplib.HTTPConnection(url.netloc, timeout=30)
+            conn.request("GET", url.path, "", headers)
+            response = conn.getresponse()
+            if response.status in [202, 303]:
+                query = 'SELECT ?p WHERE {?s ?p <' + str(obj[0]) + '>}'
+                qres = g.query(query)
+                result = qres.result
+                for p in result:
+                    if dataset in linksets:
+                        if str(p[0]) in linksets[dataset]:
+                            linksets[dataset][str(p[0])] = linksets[dataset][str(p[0])] + 1
+                        else:
+                            linksets[dataset][str(p[0])] = 1
                     else:
-                        linksets[dataset][str(p[0])] = 1
-                else:
-                    linksets[dataset] = {str(p[0]): 1}
+                        linksets[dataset] = {str(p[0]): 1}
+        except:
+            print dataset + ' timed out!'
+            return linksets
     return linksets
 
 class SWAnalyzer:
-    def __init__(self):
-        self.graph = Graph(store='PostgreSQL', identifier=identifier)
-        self.r_server = redis.Redis("localhost")
+    def __init__(self, identifier):
+        self.identifier = URIRef(identifier)
+        self.graph = Graph(store='PostgreSQL', identifier=self.identifier)
 
     #@abc.abstractmethod
     def open(self):
@@ -162,8 +164,7 @@ FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isI
         if len(out_datasets) < branches:
             branches = len(out_datasets)
         pool = Pool(branches)
-        self.r_server.set("uri_pattern", self.uri_pattern)
-        result = pool.map(check_for_semantic, out_datasets)
+        result = pool.map(check_for_semantic, zip(out_datasets, repeat(self.uri_pattern), repeat(self.identifier)))
         linksets = {}
         for item in result:
             temp_dict = eval(str(item))

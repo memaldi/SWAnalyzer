@@ -7,7 +7,7 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.sparql_analyzer = SPARQLAnalyzer('http://www.morelab.deusto.es/joseki/articles')
+        self.sparql_analyzer = SPARQLAnalyzer('http://www.morelab.deusto.es/joseki/articles', 'test')
         self.sparql_analyzer.open()
         self.sparql_analyzer.load_graph()
 

@@ -9,8 +9,8 @@ class SPARQLAnalyzer(SWAnalyzer):
 
     LIMIT = 100
 
-    def __init__(self, sparql_endpoint):
-        SWAnalyzer.__init__(self)
+    def __init__(self, sparql_endpoint, identifier):
+        SWAnalyzer.__init__(self, identifier)
         self.sparql_endpoint = sparql_endpoint
 
     def open(self):
