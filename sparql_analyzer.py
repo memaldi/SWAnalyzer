@@ -27,8 +27,8 @@ class SPARQLAnalyzer(SWAnalyzer):
         while not end:
             query = 'SELECT DISTINCT * WHERE { ?s ?p ?o } OFFSET %s LIMIT %s' % (str(offset), str(self.LIMIT))
             params = {'query': query, 'output': 'json'}
-            headers = {'Accept': 'application/json'}
-            self.sparql_http_connection.request('GET', self.route + '?' + urllib.urlencode(params), "", headers )
+            #headers = {'Accept': 'application/json'}
+            self.sparql_http_connection.request('GET', self.route + '?' + urllib.urlencode(params))
             response = self.sparql_http_connection.getresponse()
             if response.status == 200:
                 data = response.read()
