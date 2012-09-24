@@ -16,6 +16,7 @@ from django.core.validators import URLValidator
 from urlparse import urlparse
 from multiprocessing import Pool
 from itertools import repeat
+import urllib2
 
 #TODO: take these parameters from a configuration file
 configString = "user=postgres,password=p0stgr3s,host=localhost,db=rdfstore"
@@ -30,15 +31,17 @@ def check_for_semantic((dataset, uri_pattern, identifier)):
     g = Graph(store='PostgreSQL', identifier=identifier)
     g.open(configString, create=False)
     objs = get_obj_from_prefix(dataset, g, uri_pattern)
-    headers = {"Accept": "application/rdf+xml"}
+    #headers = {"Accept": "application/rdf+xml"}
     linksets = {}
     for obj in objs:
         try:
-            url = urlparse(str(obj[0]))
-            conn = httplib.HTTPConnection(url.netloc, timeout=30)
-            conn.request("GET", url.path, "", headers)
-            response = conn.getresponse()
-            if response.status in [202, 303]:
+            #conn = httplib.HTTPConnection(url.netloc, timeout=30)
+            #conn.request("GET", url.path, "", headers)
+            request = urllib2.Request(str(obj[0]))
+            request.add_header('Accept', 'application/rdf+xml')
+            response = urllib2.urlopen(req)
+            #response = conn.getresponse()
+            if response.code in [200, 303]:
                 query = 'SELECT ?p WHERE {?s ?p <' + str(obj[0]) + '>}'
                 qres = g.query(query)
                 result = qres.result
@@ -56,9 +59,13 @@ def check_for_semantic((dataset, uri_pattern, identifier)):
     return linksets
 
 class SWAnalyzer:
-    def __init__(self, identifier):
+    def __init__(self, identifier, proxy=None):
         self.identifier = URIRef(identifier)
         self.graph = Graph(store='PostgreSQL', identifier=self.identifier)
+        if proxy != None:
+            proxy = urllib2.ProxyHandler({'http': urlparse(proxy).netloc})
+            opener = urllib2.build_opener(proxy)
+            urllib2.install_opener(opener)
 
     #@abc.abstractmethod
     def open(self):

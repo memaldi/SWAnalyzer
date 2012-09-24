@@ -4,19 +4,21 @@ import urllib
 import json
 from rdflib.term import URIRef, Literal
 from sw_analyzer import SWAnalyzer
+import urllib2
+import urllib
 
 class SPARQLAnalyzer(SWAnalyzer):
 
     LIMIT = 100
 
-    def __init__(self, sparql_endpoint, identifier):
-        SWAnalyzer.__init__(self, identifier)
+    def __init__(self, sparql_endpoint, identifier, proxy=None):
+        SWAnalyzer.__init__(self, identifier, proxy)
         self.sparql_endpoint = sparql_endpoint
 
     def open(self):
         SWAnalyzer.open(self)
         self.host, self.port, self.route = ld_utils.get_host_port_route(self.sparql_endpoint)
-        self.sparql_http_connection = httplib.HTTPConnection(self.host, self.port)
+        #self.sparql_http_connection = httplib.HTTPConnection(self.host, self.port)
 
     def load_graph(self):
         result = 0
@@ -26,11 +28,16 @@ class SPARQLAnalyzer(SWAnalyzer):
 
         while not end:
             query = 'SELECT DISTINCT * WHERE { ?s ?p ?o } OFFSET %s LIMIT %s' % (str(offset), str(self.LIMIT))
-            params = {'query': query, 'output': 'json', 'format': 'application/sparql-results+json'}
-            headers = {'Accept': 'application/json, application/sparql-results+json'}
-            self.sparql_http_connection.request('GET', self.route + '?' + urllib.urlencode(params))
-            response = self.sparql_http_connection.getresponse()
-            if response.status == 200:
+            #params = {'query': query, 'output': 'json', 'format': 'application/sparql-results+json'}
+            #headers = {'Accept': 'application/json, application/sparql-results+json'}
+            #self.sparql_http_connection.request('GET', self.route + '?' + urllib.urlencode(params))
+            #response = self.sparql_http_connection.getresponse()
+            params = urllib.urlencode({'query': query, 'output': 'json', 'format': 'application/sparql-results+json'})
+            request = urllib2.Request(self.sparql_endpoint + '?' + params)
+            request.add_header('Accept', 'application/rdf+xml, application/sparql-results+json')
+            response = urllib2.urlopen(request)
+            
+            if response.code == 200:
                 data = response.read()
                 json_data = json.loads(data)
                 if len(json_data['results']['bindings']) > 0:
@@ -51,4 +58,4 @@ class SPARQLAnalyzer(SWAnalyzer):
 
     def close(self):
         SWAnalyzer.close(self)
-        self.sparql_http_connection.close()
+        #self.sparql_http_connection.close()
