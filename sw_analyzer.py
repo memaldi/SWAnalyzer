@@ -6,7 +6,6 @@ import ld_utils
 import namespace_finder
 import time
 import httplib
-import redis
 from rdflib import plugin
 from rdflib import store
 from rdflib.store import Store
