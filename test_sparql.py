@@ -8,9 +8,11 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.sparql_analyzer = SPARQLAnalyzer('http://www.morelab.deusto.es/joseki/articles', 'test')
+        raw_input('Presetup')
+        self.sparql_analyzer = DumpAnalyzer('morelab.rdf', 'test')
         self.sparql_analyzer.open()
         self.sparql_analyzer.load_graph()
+        raw_input('Postsetup')
 
     @classmethod
     def tearDownClass(self):
@@ -66,9 +68,12 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
         self.assertEqual(result_entities, expected_entities)
 
     def test_get_outgoing_links(self):
-        expected_outgoing_links = 997
-        result_outgoing_links = len(self.sparql_analyzer.get_outgoing_links())
-        self.assertEqual(result_outgoing_links, expected_outgoing_links)
+        raw_input('Pre_test_get_outgoing_links')
+        for i in range (1000):
+            print 'Iteration %s' % (i)
+            expected_outgoing_links = 997
+            result_outgoing_links = len(self.sparql_analyzer.get_outgoing_links())
+            self.assertEqual(result_outgoing_links, expected_outgoing_links)
 
     '''def test_get_patterns(self):
         expected_pattern = 'http://www.morelab.deusto.es/resource/'

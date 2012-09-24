@@ -165,6 +165,8 @@ FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isI
             branches = len(out_datasets)
         pool = Pool(branches)
         result = pool.map(check_for_semantic, zip(out_datasets, repeat(self.uri_pattern), repeat(self.identifier)))
+        pool.close()
+        pool.terminate()
         linksets = {}
         for item in result:
             temp_dict = eval(str(item))

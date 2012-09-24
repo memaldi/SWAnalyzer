@@ -64,8 +64,6 @@ def find_pattern(dataset, branches = 5, subprocesses = False, verbose = False):
     if branches > len(dataset):
         branches = len(dataset)
 
-    
-
     slot_size = len(dataset) / branches
     current_slot = 0
     datasets = [[]]
@@ -85,6 +83,8 @@ def find_pattern(dataset, branches = 5, subprocesses = False, verbose = False):
     if subprocesses:
         pool = multiprocessing.Pool(branches)
         results = pool.map(_map_impl, datasets)
+        pool.close()
+        pool.terminate()
     else:
         results = map(_map_impl, datasets)
 

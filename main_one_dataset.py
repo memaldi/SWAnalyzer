@@ -2,8 +2,8 @@ from sparql_analyzer import SPARQLAnalyzer
 from time import strftime, localtime
 
 print '[%s] Starting analysis...' % (strftime("%a, %d %b %Y %H:%M:%S", localtime()))
-#sparql_analyzer = SPARQLAnalyzer('http://www.morelab.deusto.es/joseki/articles', 'morelab')
-sparql_analyzer = SPARQLAnalyzer('http://lod.b3kat.de/sparql', 'b3kat')
+sparql_analyzer = SPARQLAnalyzer('http://sparql.reegle.info/', 'clean-energy-data-reegle')
+#sparql_analyzer = SPARQLAnalyzer('http://lod.b3kat.de/sparql', 'b3kat')
 sparql_analyzer.open()
 sparql_analyzer.load_graph()
 
