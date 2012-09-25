@@ -36,7 +36,7 @@ class SPARQLAnalyzer(SWAnalyzer):
             request = urllib2.Request(self.sparql_endpoint + '?' + params)
             request.add_header('Accept', 'application/rdf+xml, application/sparql-results+json')
             response = urllib2.urlopen(request)
-            
+
             if response.code == 200:
                 data = response.read()
                 json_data = json.loads(data)
