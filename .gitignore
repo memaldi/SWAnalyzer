@@ -29,3 +29,6 @@ pip-log.txt
 #Config files
 helheim.config
 local.config
+
+#RDF Data which we don't own
+reegle.rdf

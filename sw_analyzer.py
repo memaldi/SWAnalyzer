@@ -137,7 +137,7 @@ FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isI
         subjects = self.get_subjects()
         subject_list = []
         for subject in subjects:
-            subject_list.append(str(subject[0]))
+            subject_list.append(str(subject[0].encode('utf-8')))
         return self.get_patterns(subject_list)
 
     def get_patterns(self, collection):
