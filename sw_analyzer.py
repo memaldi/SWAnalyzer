@@ -19,7 +19,7 @@ from itertools import repeat
 import urllib2
 
 #TODO: take these parameters from a configuration file
-configString = "user=postgres,password=p0stgr3s,host=localhost,db=rdfstore"
+#configString = "user=postgres,password=p0stgr3s,host=localhost,db=rdfstore"
 plugin.register('PostgreSQL', store.Store,'rdflib_postgresql.PostgreSQL', 'PostgreSQL')
 
 def get_obj_from_prefix(prefix, graph, uri_pattern):
@@ -29,7 +29,7 @@ def get_obj_from_prefix(prefix, graph, uri_pattern):
 
 def check_for_semantic((dataset, uri_pattern, identifier)):
     g = Graph(store='PostgreSQL', identifier=identifier)
-    g.open(configString, create=False)
+    g.open(self.configString, create=False)
     objs = get_obj_from_prefix(dataset, g, uri_pattern)
     #headers = {"Accept": "application/rdf+xml"}
     linksets = {}
@@ -59,8 +59,9 @@ def check_for_semantic((dataset, uri_pattern, identifier)):
     return linksets
 
 class SWAnalyzer:
-    def __init__(self, identifier, proxy=None):
+    def __init__(self, identifier, configstring, proxy=None):
         self.identifier = URIRef(identifier)
+        self.configstring = configstring
         self.graph = Graph(store='PostgreSQL', identifier=self.identifier)
         if proxy != None:
             proxy = urllib2.ProxyHandler({'http': urlparse(proxy).netloc})
@@ -69,7 +70,7 @@ class SWAnalyzer:
 
     #@abc.abstractmethod
     def open(self):
-       self.graph.open(configString, create=True)
+       self.graph.open(self.configstring, create=True)
        return
 
     def close(self):
