@@ -8,7 +8,7 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.sparql_analyzer = SPARQLAnalyzer('http://www.morelab.deusto.es/joseki/articles', 'test')
+        self.sparql_analyzer = SPARQLAnalyzer('http://www.morelab.deusto.es/joseki/articles', 'test', 'user=postgres,password=p0stgr3s,host=localhost,db=rdfstore')
         self.sparql_analyzer.open()
         self.sparql_analyzer.load_graph()
 
@@ -77,9 +77,11 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
         self.assertEqual(result_pattern, expected_pattern)'''
 
     def test_get_linksets(self):
-        expected_linksets = eval("{'http://dbpedia.org/': {'http://xmlns.com/foaf/0.1/based_near': 1, 'http://xmlns.com/foaf/0.1/topic_interest': 5, 'http://xmlns.com/foaf/0.1/interest': 42}, 'http://dblp.rkbexplorer.com/id/': {'http://www.w3.org/2002/07/owl#sameAs': 36}, 'http://dx.doi.org/': {'http://www.w3.org/2000/01/rdf-schema#seeAlso': 18}}")
+        expected_linksets = eval("{'http://sws.geonames.org/': {'http://xmlns.com/foaf/0.1/based_near': 12, 'http://www.w3.org/2000/10/swap/pim/contact#nearestAirport': 1}, 'http://dbpedia.org/': {'http://xmlns.com/foaf/0.1/interest': 1}, 'http://www.wikier.org/': {'http://xmlns.com/foaf/0.1/isDescribedIn': 2}, 'http://littera.deusto.es/prof/abaitua/': {'http://www.w3.org/2000/01/rdf-schema#seeAlso': 1, 'http://xmlns.com/foaf/0.1/knows': 12}, 'http://www.w3.org/2001/': {'http://xmlns.com/foaf/0.1/interest': 9}, 'http://data.bibbase.org/author/': {'http://www.w3.org/2002/07/owl#sameAs': 1}, 'http://dblp.l3s.de/d2r/resource/': {'http://purl.org/dc/terms/partOf': 22, 'http://purl.org/dc/elements/1.1/creator': 32, 'http://swrc.ontoware.org/ontology#journal': 14, 'http://xmlns.com/foaf/0.1/maker': 32, 'http://swrc.ontoware.org/ontology#series': 22, 'http://www.w3.org/2002/07/owl#sameAs': 41}, 'http://dx.doi.org/': {'http://www.w3.org/2000/01/rdf-schema#seeAlso': 18}}")
         result_linksets = self.sparql_analyzer.get_linksets()
-        self.assertEqual(result_linksets, expected_linksets)
+        print 'Expected: %s' % expected_linksets
+        print 'Result: %s' % result_linksets
+        self.assertDictEqual(result_linksets, expected_linksets)
 
 class SPARQLAnalyzerInitialitation(unittest.TestCase):
 
@@ -100,7 +102,7 @@ class DumpAnalyzerTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.sparql_analyzer = DumpAnalyzer('morelab.rdf', 'test')
+        self.sparql_analyzer = DumpAnalyzer('morelab.rdf', 'test', 'user=postgres,password=p0stgr3s,host=localhost,db=rdfstore')
         self.sparql_analyzer.open()
         self.sparql_analyzer.load_graph()
 
@@ -170,7 +172,7 @@ class DumpAnalyzerTestCase(unittest.TestCase):
     def test_get_linksets(self):
         expected_linksets = eval("{'http://dbpedia.org/': {'http://xmlns.com/foaf/0.1/based_near': 1, 'http://xmlns.com/foaf/0.1/topic_interest': 5, 'http://xmlns.com/foaf/0.1/interest': 42}, 'http://dblp.rkbexplorer.com/id/': {'http://www.w3.org/2002/07/owl#sameAs': 36}, 'http://dx.doi.org/': {'http://www.w3.org/2000/01/rdf-schema#seeAlso': 18}}")
         result_linksets = self.sparql_analyzer.get_linksets()
-        self.assertEqual(result_linksets, expected_linksets)
+        self.assertDictEqual(result_linksets, expected_linksets)
 
 if __name__ == '__main__':
     unittest.main()

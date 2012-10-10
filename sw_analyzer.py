@@ -1,4 +1,4 @@
-#encoding: utf-8
+# -*- coding: utf-8 -*-
 
 import abc
 import os
@@ -27,21 +27,30 @@ def get_obj_from_prefix(prefix, graph, uri_pattern):
     qres = graph.query(query)
     return qres.result
 
-def check_for_semantic((dataset, uri_pattern, identifier)):
+def check_for_semantic((dataset, uri_pattern, identifier, configString)):
     g = Graph(store='PostgreSQL', identifier=identifier)
-    g.open(self.configString, create=False)
+    #print identifier, configString
+    g.open(configString, create=False)
+    #print len(g)
+    #print g
     objs = get_obj_from_prefix(dataset, g, uri_pattern)
+    #print objs
     #headers = {"Accept": "application/rdf+xml"}
     linksets = {}
+    #print dataset, len(objs)
     for obj in objs:
         try:
             #conn = httplib.HTTPConnection(url.netloc, timeout=30)
             #conn.request("GET", url.path, "", headers)
+            #print str(obj[0])
             request = urllib2.Request(str(obj[0]))
             request.add_header('Accept', 'application/rdf+xml')
-            response = urllib2.urlopen(req)
+            response = urllib2.urlopen(request)
             #response = conn.getresponse()
-            if response.code in [200, 303]:
+            
+            #print response.headers['content-type']
+            #print str(obj[0]), response.code
+            if 'application/rdf+xml' in response.headers['content-type']:
                 query = 'SELECT ?p WHERE {?s ?p <' + str(obj[0]) + '>}'
                 qres = g.query(query)
                 result = qres.result
@@ -53,9 +62,11 @@ def check_for_semantic((dataset, uri_pattern, identifier)):
                             linksets[dataset][str(p[0])] = 1
                     else:
                         linksets[dataset] = {str(p[0]): 1}
-        except:
+        except Exception as e:
+            #print e
             #print dataset + ' timed out!'
             return linksets
+    #print linksets
     return linksets
 
 class SWAnalyzer:
@@ -64,6 +75,7 @@ class SWAnalyzer:
         self.configstring = configstring
         self.graph = Graph(store='PostgreSQL', identifier=self.identifier)
         if proxy != None:
+            print 'Initilizing proxy...'
             proxy = urllib2.ProxyHandler({'http': urlparse(proxy).netloc})
             opener = urllib2.build_opener(proxy)
             urllib2.install_opener(opener)
@@ -170,10 +182,13 @@ FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isI
                 empty = True
         if len(out_datasets) < branches:
             branches = len(out_datasets)
+        #print len(self.graph)
+        #print self.graph
         pool = Pool(branches)
-        result = pool.map(check_for_semantic, zip(out_datasets, repeat(self.uri_pattern), repeat(self.identifier)))
+        result = pool.map(check_for_semantic, zip(out_datasets, repeat(self.uri_pattern), repeat(self.identifier), repeat(self.configstring)))
         pool.close()
         pool.terminate()
+        #print result
         linksets = {}
         for item in result:
             temp_dict = eval(str(item))

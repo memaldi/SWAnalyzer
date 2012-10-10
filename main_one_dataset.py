@@ -2,7 +2,7 @@ from sparql_analyzer import SPARQLAnalyzer
 from time import strftime, localtime
 from optparse import OptionParser
 from configuration_parser import ConfigurationParser
-
+from dump_analyzer import DumpAnalyzer
 parser = OptionParser()
 parser.add_option("-c", "--config", dest="configfile", help="Config file", metavar="CONFIG")
 (options, args) = parser.parse_args()
@@ -15,7 +15,7 @@ configParser = ConfigurationParser(options.configfile)
 
 
 print '[%s] Starting analysis...' % (strftime("%a, %d %b %Y %H:%M:%S", localtime()))
-sparql_analyzer = SPARQLAnalyzer(configParser.sparql_endpoint, configParser.db_identifier, configParser.db_configstring)
+sparql_analyzer = DumpAnalyzer(configParser.sparql_endpoint, configParser.db_identifier, configParser.db_configstring)
 #sparql_analyzer = SPARQLAnalyzer('http://lod.b3kat.de/sparql', 'b3kat')
 sparql_analyzer.open()
 sparql_analyzer.load_graph()
