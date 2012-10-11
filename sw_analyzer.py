@@ -28,6 +28,8 @@ def get_obj_from_prefix(prefix, graph, uri_pattern):
     return qres.result
 
 def check_for_semantic((dataset, uri_pattern, identifier, configString)):
+    #print configString
+    #print identifier
     g = Graph(store='PostgreSQL', identifier=identifier)
     #print identifier, configString
     g.open(configString, create=False)
@@ -63,7 +65,7 @@ def check_for_semantic((dataset, uri_pattern, identifier, configString)):
                     else:
                         linksets[dataset] = {str(p[0]): 1}
         except Exception as e:
-            #print e
+            print e
             #print dataset + ' timed out!'
             return linksets
     #print linksets
