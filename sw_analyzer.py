@@ -88,7 +88,7 @@ class SWAnalyzer:
        return
 
     def close(self):
-        self.graph.destroy(None)
+        self.graph.destroy(self.configstring)
         self.graph.close()
 
     def load_graph(self):
