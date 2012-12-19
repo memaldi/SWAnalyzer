@@ -8,7 +8,7 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.sparql_analyzer = SPARQLAnalyzer('http://www.morelab.deusto.es/joseki/articles', 'test', 'user=postgres,password=p0stgr3s,host=localhost,db=rdfstore')
+        self.sparql_analyzer = SPARQLAnalyzer('http://www.morelab.deusto.es/joseki/articles', 'test', 'user=postgres password=p0stgr3s host=localhost dbname=rdfstore')
         self.sparql_analyzer.open()
         self.sparql_analyzer.load_graph()
 
@@ -86,7 +86,7 @@ class SPARQLAnalyzerTestCase(unittest.TestCase):
 class SPARQLAnalyzerInitialitation(unittest.TestCase):
 
     def setUp(self):
-        self.sparql_analyzer = SPARQLAnalyzer('http://www.morelab.deusto.es/joseki/articles', 'test', 'user=postgres,password=p0stgr3s,host=localhost,db=rdfstore')
+        self.sparql_analyzer = SPARQLAnalyzer('http://www.morelab.deusto.es/joseki/articles', 'test', 'user=postgres password=p0stgr3s host=localhost dbname=rdfstore')
         self.sparql_analyzer.open()
 
     def tearDown(self):
@@ -102,7 +102,7 @@ class DumpAnalyzerTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.sparql_analyzer = DumpAnalyzer('morelab.rdf', 'test', 'user=postgres,password=p0stgr3s,host=localhost,db=rdfstore')
+        self.sparql_analyzer = DumpAnalyzer('morelab.rdf', 'test', 'user=postgres password=p0stgr3s host=localhost dbname=rdfstore')
         self.sparql_analyzer.open()
         self.sparql_analyzer.load_graph()
 
