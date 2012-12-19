@@ -72,10 +72,11 @@ def check_for_semantic((dataset, uri_pattern, identifier, configString)):
     return linksets
 
 class SWAnalyzer:
-    def __init__(self, identifier, configstring, proxy=None):
+    def __init__(self, identifier, configstring, proxy=None, subprocess=True):
         self.identifier = URIRef(identifier)
         self.configstring = configstring
         self.graph = Graph(store='PostgreSQL', identifier=self.identifier)
+        self.subprocess = subprocess
         if proxy != None:
             print 'Initilizing proxy...'
             proxy = urllib2.ProxyHandler({'http': urlparse(proxy).netloc})
@@ -164,6 +165,16 @@ FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isI
         #print result
         return result
 
+    def map_subprocess(self, data):
+        if subprocess:
+            pool = Pool(branches)
+            result = pool.map(check_for_semantic, data)
+            pool.close()
+            pool.terminate()
+            return result
+        else:
+            map(check_for_semantic, data)
+
     def get_linksets(self, branches=5):
         temp_links = self.get_outgoing_links()
         empty = False
@@ -186,10 +197,9 @@ FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isI
             branches = len(out_datasets)
         #print len(self.graph)
         #print self.graph
-        pool = Pool(branches)
-        result = pool.map(check_for_semantic, zip(out_datasets, repeat(self.uri_pattern), repeat(self.identifier), repeat(self.configstring)))
-        pool.close()
-        pool.terminate()
+
+        map_subprocess(zip(out_datasets, repeat(self.uri_pattern), repeat(self.identifier), repeat(self.configstring)))
+
         #print result
         linksets = {}
         for item in result:

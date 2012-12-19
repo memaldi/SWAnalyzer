@@ -11,8 +11,8 @@ class SPARQLAnalyzer(SWAnalyzer):
 
     LIMIT = 100
 
-    def __init__(self, sparql_endpoint, identifier, configstring, proxy=None):
-        SWAnalyzer.__init__(self, identifier, configstring, proxy=proxy)
+    def __init__(self, sparql_endpoint, identifier, configstring, proxy=None, subprocess=True):
+        SWAnalyzer.__init__(self, identifier, configstring, proxy, subprocess)
         self.sparql_endpoint = sparql_endpoint
 
     def open(self):
