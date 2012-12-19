@@ -159,21 +159,21 @@ FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isI
         processes = 10
         collection = [e for e in collection if e.find('http://') == 0]
         #initial = time.time()
-        result = namespace_finder.find_pattern(collection, branches = processes, subprocesses = True, verbose = False)
+        result = namespace_finder.find_pattern(collection, branches = processes, subprocesses = False, verbose = False)
         #end = time.time()
         #print "%s elements. %s processes, result: %s; time: %.2f second" % (len(collection), processes, str(result), end - initial)
         #print result
         return result
 
     def map_subprocess(self, data):
-        if subprocess:
+        if self.subprocess:
             pool = Pool(branches)
             result = pool.map(check_for_semantic, data)
             pool.close()
             pool.terminate()
             return result
         else:
-            map(check_for_semantic, data)
+            return map(check_for_semantic, data)
 
     def get_linksets(self, branches=5):
         temp_links = self.get_outgoing_links()
@@ -198,7 +198,7 @@ FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isI
         #print len(self.graph)
         #print self.graph
 
-        map_subprocess(zip(out_datasets, repeat(self.uri_pattern), repeat(self.identifier), repeat(self.configstring)))
+        result = self.map_subprocess(zip(out_datasets, repeat(self.uri_pattern), repeat(self.identifier), repeat(self.configstring)))
 
         #print result
         linksets = {}
