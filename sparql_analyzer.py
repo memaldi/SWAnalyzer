@@ -7,6 +7,17 @@ from sw_analyzer import SWAnalyzer
 import urllib2
 import urllib
 
+def check_sparql_endpoint(sparql_endpoint):
+    query = 'select distinct ?Concept where {[] a ?Concept} LIMIT 1'
+    params = urllib.urlencode({'query': query, 'output': 'json', 'format': 'application/sparql-results+json'})
+    request = urllib2.Request(sparql_endpoint + '?' + params)
+    request.add_header('Accept', 'application/rdf+xml, application/sparql-results+json')
+    try:
+        response = urllib2.urlopen(request)
+        return response.code == 200
+    except urllib2.HTTPError:
+        return False
+
 class SPARQLAnalyzer(SWAnalyzer):
 
     LIMIT = 100
