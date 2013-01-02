@@ -170,9 +170,9 @@ FILTER (!isBlank(?s) && !isBlank(?o) && regex(str(?s), "''' + self.uri_pattern +
         subject_list = []
         for subject in subjects:
             subject_list.append(str(subject[0].encode('utf-8')))
-        return self.get_patterns(subject_list)
+        return self.get_pattern(subject_list)
 
-    def get_patterns(self, collection):
+    def get_pattern(self, collection):
         processes = 10
         collection = [e for e in collection if e.find('http://') == 0]
         #initial = time.time()
@@ -205,7 +205,7 @@ FILTER (!isBlank(?s) && !isBlank(?o) && regex(str(?s), "''' + self.uri_pattern +
             except:
                 pass
         while not empty:
-            out_pattern = self.get_patterns(outgoing_links)
+            out_pattern = self.get_pattern(outgoing_links)
             outgoing_links = [e for e in outgoing_links if (e.find(out_pattern[1]) != 0) and ((e + '/').find(out_pattern[1]) != 0)]
             out_datasets.append(out_pattern[1])
             if len(outgoing_links) == 0:
