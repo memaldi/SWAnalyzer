@@ -95,6 +95,9 @@ class SWAnalyzer:
     def load_graph(self):
         self.uri_pattern = self.get_uri_pattern()[1]
 
+    def get_uri_pattern(self):
+        return self.uri_pattern
+
     def get_triples(self):
         query = 'SELECT * { ?s ?p ?o }'
         qres = self.graph.query(query)
