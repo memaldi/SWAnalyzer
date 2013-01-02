@@ -96,7 +96,7 @@ class SWAnalyzer:
         self.uri_pattern = self.get_uri_pattern()[1]
 
     def get_triples(self):
-        query = 'SELECT * { ?s ?p ?o }'
+        query = 'SELECT DISTINCT * { ?s ?p ?o }'
         qres = self.graph.query(query)
         return qres.result
 
