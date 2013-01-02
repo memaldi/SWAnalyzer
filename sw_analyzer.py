@@ -182,6 +182,21 @@ FILTER (!isBlank(?s) && !isBlank(?o) && regex(str(?s), "''' + self.uri_pattern +
         #print result
         return result
 
+    def get_patterns(self, uri_list):
+        temp_list = []
+        temp_list += uri_list
+
+        patterns = []
+        while len(temp_list) > 0:
+            pos = temp_list[0].rfind('#')
+            if pos == -1:
+                pos = temp_list[0].rfind('/')
+            if pos > -1:
+                pattern = temp_list[0][:pos]
+                patterns.append(pattern)
+                temp_list = [e for e in temp_list if not e.startswith(pattern)]
+        return patterns
+
     def map_subprocess(self, data):
         if self.subprocess:
             pool = Pool(branches)
