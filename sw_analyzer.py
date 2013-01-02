@@ -95,6 +95,11 @@ class SWAnalyzer:
     def load_graph(self):
         self.uri_pattern = self.get_uri_pattern()[1]
 
+    def get_triples(self):
+        query = 'SELECT * { ?s ?p ?o }'
+        qres = self.graph.query(query)
+        return qres.result
+
     def get_classes(self):    
         query = 'SELECT DISTINCT ?class WHERE { [] a ?class }'
         qres = self.graph.query(query)
@@ -137,14 +142,26 @@ class SWAnalyzer:
         return qres.result
 
     def get_all_links(self):
-        query = '''SELECT ?o WHERE { ?s ?p ?o . 
-                   FILTER (!isLiteral(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
+        query = '''SELECT * WHERE { ?s ?p ?o . 
+                   FILTER (!isBlank(?s) && !isBlank(?o) && isIRI(?s) && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
+        qres = self.graph.query(query)
+        return qres.result
+
+    def get_ingoing_links(self):
+        query = '''SELECT * WHERE { ?s ?p ?o . 
+FILTER (!isBlank(?s) && !isBlank(?o) && !regex(str(?s), "''' + self.uri_pattern + '''") && isIRI(?s) && regex(str(?o), "''' + self.uri_pattern + '''") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
         qres = self.graph.query(query)
         return qres.result
 
     def get_outgoing_links(self):
-        query = '''SELECT ?o WHERE { ?s ?p ?o . 
-FILTER ((!isBlank(?o)) && !regex(str(?o), "''' + self.uri_pattern + '''") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
+        query = '''SELECT * WHERE { ?s ?p ?o . 
+FILTER (!isBlank(?s) && !isBlank(?o) && regex(str(?s), "''' + self.uri_pattern + '''") && isIRI(?s) && !regex(str(?o), "''' + self.uri_pattern + '''") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
+        qres = self.graph.query(query)
+        return qres.result
+
+    def get_inner_links(self):
+        query = '''SELECT * WHERE { ?s ?p ?o . 
+FILTER (!isBlank(?s) && !isBlank(?o) && regex(str(?s), "''' + self.uri_pattern + '''") && isIRI(?s) && regex(str(?o), "''' + self.uri_pattern + '''") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
         qres = self.graph.query(query)
         return qres.result
 
