@@ -15,7 +15,7 @@ setup(
 	author_email='m.emaldi@deusto.es',
 	url='http://www.morelab.deusto.es',
 	packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
-	#namespace_packages=['swanalyzer'],
+	namespace_packages=['swanalyzer'],
 	include_package_data=True,
 	zip_safe=False,
 	install_requires=[
