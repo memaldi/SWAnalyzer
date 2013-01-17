@@ -16,6 +16,6 @@ Install package
 
 	python setup.py install
 
-Install dependencies
+If you want to use PostreSQL support install the following dependencies
 	
 	pip install -e git+https://github.com/RDFLib/rdflib-postgresql.git#egg=rdflib_posgresql
