@@ -5,7 +5,7 @@ sparql_endpoint = 'http://www.morelab.deusto.es/joseki/articles'
 print 'SPARQL status', check_sparql_endpoint(sparql_endpoint)
 print 'SPARQL status', check_sparql_endpoint('http://www.morelab.deusto.es/joseki/articlus')
 
-sparql_analyzer = SPARQLAnalyzer(sparql_endpoint, 'test', 'user=ckanuser password=pass host=localhost dbname=rdfstore')
+sparql_analyzer = SPARQLAnalyzer(sparql_endpoint, 'test', 'user=ckanuser password=pass host=localhost dbname=rdfstore', 'PostgreSQL')
 sparql_analyzer.open()
 sparql_analyzer.load_graph()
 

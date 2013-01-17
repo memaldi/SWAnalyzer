@@ -19,8 +19,9 @@ setup(
 	include_package_data=True,
 	zip_safe=False,
 	install_requires=[
-		'rdflib==3.2.1',
-		'rdfextras==0.2',
+		'rdflib',
+		'rdflib-sqlite', 
+		'rdfextras',
 		'django',
 	],
 )

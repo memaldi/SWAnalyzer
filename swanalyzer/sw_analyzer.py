@@ -18,10 +18,6 @@ from multiprocessing import Pool
 from itertools import repeat
 import urllib2
 
-#TODO: take these parameters from a configuration file
-#configString = "user=postgres,password=p0stgr3s,host=localhost,db=rdfstore"
-plugin.register('PostgreSQL', store.Store,'rdflib_postgresql.PostgreSQL', 'PostgreSQL')
-
 def get_obj_from_prefix(prefix, graph, uri_pattern):
     query = 'SELECT DISTINCT ?o WHERE {?s ?p ?o . FILTER (regex(str(?o), "^' + prefix + '", "i") && !regex(str(?o), "^' + uri_pattern + '", "i"))}'
     qres = graph.query(query)
@@ -72,10 +68,10 @@ def check_for_semantic((dataset, uri_pattern, identifier, configString)):
     return linksets
 
 class SWAnalyzer:
-    def __init__(self, identifier, configstring, proxy=None, subprocess=True):
+    def __init__(self, identifier, configstring, store='SQLite', proxy=None, subprocess=True):
         self.identifier = URIRef(identifier)
         self.configstring = configstring
-        self.graph = Graph(store='PostgreSQL', identifier=self.identifier)
+        self.graph = Graph(store, identifier=self.identifier)
         self.subprocess = subprocess
         if proxy != None:
             print 'Initilizing proxy...'
