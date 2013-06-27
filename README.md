@@ -28,6 +28,10 @@ Create user *test_user* with pass *test*
 
 	sudo -u postgres createuser -SDRP test_user
 	
+Create database *rdfstore*
+
+	sudo -u postgres createdb -O test_user rdfstore -E utf-8
+	
 Run postgresql example
 	
 	python test_basic_postgresql.py
