@@ -17,7 +17,7 @@ Install package
 
 If you want to use PostgreSQL support install the following dependencies (optional)
 	
-	pip install -e git+https://github.com/RDFLib/rdflib-postgresql.git#egg=rdflib_posgresql
+	pip install -e git+https://github.com/RDFLib/rdflib-postgresql.git#egg=rdflib_postgresql
 
 Examples
 	
