@@ -23,5 +23,10 @@ Examples
 	
 	cd swanalyzer/tests
 	python test_basic_sqlite.py
-	python test_basic_postgresql.py (Requires rdflib-postgresql)
+	
+Requires rdflib-postgresql (Create user *test_user* with pass *test*)
+
+	sudo -u postgres createuser -SDRP test_user
+	
+	python test_basic_postgresql.py
 
