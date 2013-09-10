@@ -13,16 +13,6 @@ def basicTest(sparql_analyzer):
 	print 'URI pattern', sparql_analyzer.get_uri_pattern()
 	
 	print ''
-	print 'Get data and count'
-	print 'Triples:', len(sparql_analyzer.get_triples())
-	print 'Classes:', len(sparql_analyzer.get_classes())
-	print 'All links:', len(sparql_analyzer.get_all_links())
-	print 'Ingoing links:', len(sparql_analyzer.get_ingoing_links())
-	print 'Outgoing links:', len(sparql_analyzer.get_outgoing_links())
-	print 'Inner links:', len(sparql_analyzer.get_inner_links())
-	
-	print ''
-	print 'Direct count' 
 	print 'Triples:', sparql_analyzer.count_triples()
 	print 'Classes:', sparql_analyzer.count_classes()
 	print 'All links:', sparql_analyzer.count_all_links()
