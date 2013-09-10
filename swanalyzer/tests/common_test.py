@@ -33,12 +33,6 @@ def basicTest(sparql_analyzer):
 	print 'Subjects:', sparql_analyzer.count_subjects()
 	print 'Objects:', sparql_analyzer.count_objects()
 	print 'Properties:', sparql_analyzer.count_properties()
-
-	property_list = []
-	for p in sparql_analyzer.get_properties():
-		property_list.append(str(p[0].encode('utf-8')))
-
-	print sparql_analyzer.get_patterns(property_list)
 	
 	print ''
 	print 'Class instances'
