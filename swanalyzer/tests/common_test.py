@@ -32,5 +32,10 @@ def basicTest(sparql_analyzer):
 	print 'Vocabularies'
 	for vocabulary in sparql_analyzer.get_vocabularies():
 		print vocabulary
+		
+	print ''
+	print 'Have predicate'
+	for predicate, triples in sparql_analyzer.get_all_predicate_triples().items():
+		print 'Predicate %s: %s' % (predicate, triples)
 
 	sparql_analyzer.close();

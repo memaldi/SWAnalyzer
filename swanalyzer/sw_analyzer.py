@@ -127,8 +127,14 @@ class SWAnalyzer:
         for c in self.get_classes():
             clazz = str(c[0].encode('utf-8'))
             instances[clazz] = len(self.get_class_instances(clazz))
-            
         return instances
+        
+    def get_all_predicate_triples(self):
+        predicates = {}
+        for p in self.get_properties():
+            predicate = str(p[0].encode('utf-8'))
+            predicates[predicate] = len(self.get_property(predicate))
+        return predicates
         
     def get_property(self, property_name):
         query = 'SELECT * WHERE { ?s <' + property_name + '> ?o }'
