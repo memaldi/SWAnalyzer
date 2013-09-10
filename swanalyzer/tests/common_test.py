@@ -24,17 +24,6 @@ def basicTest(sparql_analyzer):
 	print 'Properties:', len(sparql_analyzer.get_properties())
 	
 	print ''
-	print 'Triples:', sparql_analyzer.count_triples()
-	print 'Classes:', sparql_analyzer.count_classes()
-	print 'All links:', sparql_analyzer.count_all_links()
-	print 'Ingoing links:', sparql_analyzer.count_ingoing_links()
-	print 'Outgoing links:', sparql_analyzer.count_outgoing_links()
-	print 'Inner links:', sparql_analyzer.count_inner_links()
-	print 'Subjects:', sparql_analyzer.count_subjects()
-	print 'Objects:', sparql_analyzer.count_objects()
-	print 'Properties:', sparql_analyzer.count_properties()
-	
-	print ''
 	print 'Class instances'
 	for clazz, instances in sparql_analyzer.get_all_classes_instances().items():
 		print 'Class %s: %s' % (clazz, instances)
