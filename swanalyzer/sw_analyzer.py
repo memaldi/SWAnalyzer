@@ -153,6 +153,14 @@ class SWAnalyzer:
         qres = self.graph.query(query)
         return int(qres.result[0][0])
         
+    def get_all_classes_instances(self):
+        instances = {}
+        for c in self.get_classes():
+            clazz = str(c[0].encode('utf-8'))
+            instances[clazz] = self.count_class_instances(clazz)
+            
+        return instances
+        
     def get_property(self, property_name):
         query = 'SELECT * WHERE { ?s <' + property_name + '> ?o }'
         qres = self.graph.query(query)
@@ -220,6 +228,10 @@ FILTER (!isBlank(?s) && !isBlank(?o) && regex(str(?s), "''' + self.uri_pattern +
 FILTER (!isBlank(?s) && !isBlank(?o) && regex(str(?s), "''' + self.uri_pattern + '''") && isIRI(?s) && regex(str(?o), "''' + self.uri_pattern + '''") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
         qres = self.graph.query(query)
         return int(qres.result[0][0])
+        
+    def get_vocabularies(self):
+        property_list = [str(p[0].encode('utf-8')) for p in self.get_properties()]
+        return self.get_patterns(property_list)
 
     def get_uri_pattern(self):
         subjects = self.get_subjects()
