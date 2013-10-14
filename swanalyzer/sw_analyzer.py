@@ -142,7 +142,7 @@ class SWAnalyzer:
     def get_subjects_count(self):
         query = 'SELECT COUNT(distinct ?s) WHERE { ?s ?p ?o }'
         qres = self.graph.query(query)
-        return qres.result
+        return int(qres.result[0][0])
         
     def get_properties_count(self):
         query = 'SELECT COUNT(distinct ?s) AS ?no WHERE { ?s ?p ?o }'
