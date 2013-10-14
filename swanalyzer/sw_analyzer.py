@@ -187,7 +187,7 @@ class SWAnalyzer:
         return qres.result
         
     def get_property_count(self, property_name):
-        query = 'SELECT (COUNT(*) AS ?no WHERE { ?s <' + property_name + '> ?o }'
+        query = 'SELECT (COUNT(*) AS ?no) WHERE { ?s <' + property_name + '> ?o }'
         qres = self.graph.query(query)
         return int(qres.result[0][0])
                 
