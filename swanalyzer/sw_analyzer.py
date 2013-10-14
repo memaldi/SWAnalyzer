@@ -196,6 +196,11 @@ class SWAnalyzer:
         qres = self.graph.query(query)
         return qres.result
         
+    def get_entities_count(self):
+        query = 'SELECT COUNT(distinct ?s) AS ?no WHERE { ?s a [] . FILTER ((!isBlank(?s)) && regex(str(?s), "^' + self.uri_pattern + '"))}'
+        qres = self.graph.query(query)
+        return int(qres.result[0][0])
+        
     def get_all_links(self):
         query = '''SELECT * WHERE { ?s ?p ?o . 
                    FILTER (!isBlank(?s) && !isBlank(?o) && isIRI(?s) && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
