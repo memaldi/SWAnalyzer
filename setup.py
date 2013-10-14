@@ -21,6 +21,7 @@ setup(
 	install_requires=[
 		'rdflib',
 		'rdflib-sqlite',
+		'rdflib-sparqlstore',
 		'django',
 	],
 )
