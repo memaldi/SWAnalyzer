@@ -96,7 +96,7 @@ class SWAnalyzer:
             self.graph.open(self.configstring, create=True)
 
     def close(self):
-        if store is not None:
+        if self.configString is not None:
             self.graph.destroy(self.configstring)
             
         self.graph.close()
