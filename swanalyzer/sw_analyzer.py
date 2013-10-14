@@ -96,7 +96,7 @@ class SWAnalyzer:
             self.graph.open(self.configstring, create=True)
 
     def close(self):
-        if self.configString is not None:
+        if type(self.store) is not 'rdflib_sparqlstore.sparqlstore.SPARQLStore':
             self.graph.destroy(self.configstring)
             
         self.graph.close()
