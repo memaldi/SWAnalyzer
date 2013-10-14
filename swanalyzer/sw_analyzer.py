@@ -178,13 +178,18 @@ class SWAnalyzer:
         predicates = {}
         for p in self.get_properties():
             predicate = str(p[0].encode('utf-8'))
-            predicates[predicate] = self.get_properties_count(predicate)
+            predicates[predicate] = self.get_property_count(predicate)
         return predicates
         
     def get_property(self, property_name):
         query = 'SELECT * WHERE { ?s <' + property_name + '> ?o }'
         qres = self.graph.query(query)
         return qres.result
+        
+    def get_property_count(self, property_name):
+        query = 'SELECT (COUNT(*) AS ?no WHERE { ?s <' + property_name + '> ?o }'
+        qres = self.graph.query(query)
+        return int(qres.result[0][0])
                 
     def get_entities(self):
         query = 'SELECT DISTINCT ?s WHERE { ?s a [] . FILTER ((!isBlank(?s)) && regex(str(?s), "^' + self.uri_pattern + '"))}'
