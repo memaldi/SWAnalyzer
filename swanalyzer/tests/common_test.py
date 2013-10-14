@@ -13,15 +13,12 @@ def basicTest(sparql_analyzer):
 	print 'URI pattern', sparql_analyzer.get_uri_pattern()
 	
 	print ''
-	print 'Triples:', len(sparql_analyzer.get_triples())
-	print 'Classes:', len(sparql_analyzer.get_classes())
-	print 'All links:', len(sparql_analyzer.get_all_links())
-	print 'Ingoing links:', len(sparql_analyzer.get_ingoing_links())
-	print 'Outgoing links:', len(sparql_analyzer.get_outgoing_links())
-	print 'Inner links:', len(sparql_analyzer.get_inner_links())
-	print 'Subjects:', len(sparql_analyzer.get_subjects())
-	print 'Objects:', len(sparql_analyzer.get_objects())
-	print 'Properties:', len(sparql_analyzer.get_properties())
+	print 'Triples:', sparql_analyzer.get_triples_count()
+	print 'Classes:', sparql_analyzer.get_classes_count()
+	
+	print 'Subjects:', sparql_analyzer.get_subjects_count()
+	print 'Objects:', sparql_analyzer.get_objects_count()
+	print 'Properties:', sparql_analyzer.get_properties_count()
 	
 	print ''
 	print 'Class instances'
@@ -37,5 +34,10 @@ def basicTest(sparql_analyzer):
 	print 'Have predicate'
 	for predicate, triples in sparql_analyzer.get_all_predicate_triples().items():
 		print 'Predicate %s: %s' % (predicate, triples)
+		
+	print 'Ingoing links:', sparql_analyzer.get_ingoing_links_count()
+	print 'Inner links:', sparql_analyzer.get_inner_links_count()
+	print 'Outgoing links:', sparql_analyzer.get_outgoing_links_count()
+	print 'All links:', sparql_analyzer.get_all_links_count()
 
 	sparql_analyzer.close();

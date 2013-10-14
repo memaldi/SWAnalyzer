@@ -106,44 +106,79 @@ class SWAnalyzer:
         query = 'SELECT DISTINCT * { ?s ?p ?o }'
         qres = self.graph.query(query)
         return qres.result
+        
+    def get_triples_count(self):
+        query = 'SELECT (COUNT(*) AS ?no) { ?s ?p ?o  }'
+        qres = self.graph.query(query)
+        return int(qres.result[0][0])
 
     def get_classes(self):    
         query = 'SELECT DISTINCT ?class WHERE { [] a ?class }'
         qres = self.graph.query(query)
         return qres.result
         
+    def get_classes_count(self):
+        query = 'SELECT COUNT(distinct ?o) AS ?no { ?s rdf:type ?o }'
+        qres = self.graph.query(query)
+        return int(qres.result[0][0])
+        
     def get_properties(self):
         query = 'SELECT DISTINCT ?p WHERE { ?s ?p ?o }'
         qres = self.graph.query(query)
         return qres.result
+        
+    def get_properties_count(self):
+        query = 'SELECT COUNT(distinct ?p) AS ?no WHERE { ?s ?p ?o }'
+        qres = self.graph.query(query)
+        return int(qres.result[0][0])
         
     def get_subjects(self):
         query = 'SELECT DISTINCT ?s WHERE { ?s ?p ?o }'
         qres = self.graph.query(query)
         return qres.result
         
+    def get_subjects_count(self):
+        query = 'SELECT COUNT(distinct ?s) WHERE { ?s ?p ?o }'
+        qres = self.graph.query(query)
+        return qres.result
+        
+    def get_properties_count(self):
+        query = 'SELECT COUNT(distinct ?s) AS ?no WHERE { ?s ?p ?o }'
+        qres = self.graph.query(query)
+        return int(qres.result[0][0])
+        
     def get_objects(self):
         query = 'SELECT DISTINCT ?o WHERE { ?s ?p ?o }'
         qres = self.graph.query(query)
         return qres.result
+        
+    def get_objects_count(self):
+        query = 'SELECT COUNT(distinct ?o) AS ?no WHERE { ?s ?p ?o }'
+        qres = self.graph.query(query)
+        return int(qres.result[0][0])
         
     def get_class_instances(self, class_name):
         query = 'SELECT DISTINCT ?s WHERE { ?s a <' + class_name + '> }'
         qres = self.graph.query(query)
         return qres.result
         
+    def get_class_instances_count(self, class_name):
+        query = 'SELECT COUNT(distinct ?s) AS ?no WHERE { ?s a <' + class_name + '> }'
+        qres = self.graph.query(query)
+        return int(qres.result[0][0])
+        
     def get_all_classes_instances(self):
         instances = {}
         for c in self.get_classes():
             clazz = str(c[0].encode('utf-8'))
-            instances[clazz] = len(self.get_class_instances(clazz))
+            instances[clazz] = self.get_class_instances_count(clazz)
         return instances
         
     def get_all_predicate_triples(self):
         predicates = {}
         for p in self.get_properties():
             predicate = str(p[0].encode('utf-8'))
-            predicates[predicate] = len(self.get_property(predicate))
+            predicates[predicate] = self.get_property_count(predicate)
         return predicates
         
     def get_property(self, property_name):
@@ -161,6 +196,12 @@ class SWAnalyzer:
                    FILTER (!isBlank(?s) && !isBlank(?o) && isIRI(?s) && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
         qres = self.graph.query(query)
         return qres.result
+        
+    def get_all_links_count(self):
+        query = '''SELECT (COUNT(*) AS ?no) WHERE { ?s ?p ?o . 
+                   FILTER (!isBlank(?s) && !isBlank(?o) && isIRI(?s) && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
+        qres = self.graph.query(query)
+        return int(qres.result[0][0])
 
     def get_ingoing_links(self):
         query = '''SELECT * WHERE { ?s ?p ?o . 
@@ -168,17 +209,35 @@ FILTER (!isBlank(?s) && !isBlank(?o) && !regex(str(?s), "''' + self.uri_pattern 
         qres = self.graph.query(query)
         return qres.result
 
+    def get_ingoing_links_count(self):
+        query = '''SELECT (COUNT(*) AS ?no) WHERE { ?s ?p ?o . 
+FILTER (!isBlank(?s) && !isBlank(?o) && !regex(str(?s), "''' + self.uri_pattern + '''") && isIRI(?s) && regex(str(?o), "''' + self.uri_pattern + '''") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
+        qres = self.graph.query(query)
+        return int(qres.result[0][0])
+
     def get_outgoing_links(self):
         query = '''SELECT * WHERE { ?s ?p ?o . 
 FILTER (!isBlank(?s) && !isBlank(?o) && regex(str(?s), "''' + self.uri_pattern + '''") && isIRI(?s) && !regex(str(?o), "''' + self.uri_pattern + '''") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
         qres = self.graph.query(query)
         return qres.result
+        
+    def get_outgoing_links_count(self):
+        query = '''SELECT (COUNT(*) AS ?no) WHERE { ?s ?p ?o . 
+FILTER (!isBlank(?s) && !isBlank(?o) && regex(str(?s), "''' + self.uri_pattern + '''") && isIRI(?s) && !regex(str(?o), "''' + self.uri_pattern + '''") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
+        qres = self.graph.query(query)
+        return int(qres.result[0][0])
 
     def get_inner_links(self):
         query = '''SELECT * WHERE { ?s ?p ?o . 
 FILTER (!isBlank(?s) && !isBlank(?o) && regex(str(?s), "''' + self.uri_pattern + '''") && isIRI(?s) && regex(str(?o), "''' + self.uri_pattern + '''") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
         qres = self.graph.query(query)
         return qres.result
+        
+    def get_inner_links_count(self):
+        query = '''SELECT (COUNT(*) AS ?no) WHERE { ?s ?p ?o . 
+FILTER (!isBlank(?s) && !isBlank(?o) && regex(str(?s), "''' + self.uri_pattern + '''") && isIRI(?s) && regex(str(?o), "''' + self.uri_pattern + '''") && isIRI(?o) && (str(?p) != "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && (str(?p) != "http://purl.org/dc/elements/1.1/type"))}'''
+        qres = self.graph.query(query)
+        return int(qres.result[0][0])
         
     def get_vocabularies(self):
         property_list = [str(p[0].encode('utf-8')) for p in self.get_properties()]
