@@ -71,14 +71,15 @@ def check_for_semantic((dataset, uri_pattern, identifier, configString)):
 class SWAnalyzer:
     def __init__(self, sparql_endpoint, identifier, configstring, store=None, proxy=None, subprocess=True):
         self.sparql_endpoint = sparql_endpoint
-        self.identifier = URIRef(identifier)
-        self.configstring = configstring
         self.store = store
+        
         if store is None:
             print 'Creating SPARQLStore for %s' % self.sparql_endpoint
             store = SPARQLStore(self.sparql_endpoint)
             self.graph = Graph(store)
         else:
+            self.identifier = URIRef(identifier)
+            self.configstring = configstring
             self.graph = Graph(store, identifier=self.identifier)
             
         self.subprocess = subprocess
