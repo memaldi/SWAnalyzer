@@ -1,7 +1,7 @@
 from swanalyzer.sparql_analyzer import SPARQLAnalyzer
 from common_test import checkEnpoints, basicTest
 
-sparql_endpoint = 'http://helheim.deusto.es/linkedstats/sparql'
+sparql_endpoint = 'http://10.48.1.68:8890/sparql'
 invalid_enpoint = 'http://dbpedia.org/sparql/NOT_FOUND'
 
 DB_NAME = 'test'
