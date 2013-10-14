@@ -9,7 +9,7 @@ DB_FILE = 'swanalyzer.sqlite'
 
 checkEnpoints(sparql_endpoint, invalid_enpoint)
 
-sparql_analyzer = SPARQLAnalyzer(sparql_endpoint, DB_NAME, DB_FILE)
+sparql_analyzer = SPARQLAnalyzer(sparql_endpoint, DB_NAME, DB_FILE, store='SQLite')
 
 basicTest(sparql_analyzer)
 

@@ -17,6 +17,7 @@ from urlparse import urlparse
 from multiprocessing import Pool
 from itertools import repeat
 import urllib2
+from rdflib_sparqlstore import SPARQLStore
 
 def get_obj_from_prefix(prefix, graph, uri_pattern):
     query = 'SELECT DISTINCT ?o WHERE {?s ?p ?o . FILTER (regex(str(?o), "^' + prefix + '", "i") && !regex(str(?o), "^' + uri_pattern + '", "i"))}'
@@ -68,11 +69,20 @@ def check_for_semantic((dataset, uri_pattern, identifier, configString)):
     return linksets
 
 class SWAnalyzer:
-    def __init__(self, identifier, configstring, store='SQLite', proxy=None, subprocess=True):
+    def __init__(self, sparql_endpoint, identifier, configstring, store=None, proxy=None, subprocess=True):
+        self.sparql_endpoint = sparql_endpoint
         self.identifier = URIRef(identifier)
         self.configstring = configstring
-        self.graph = Graph(store, identifier=self.identifier)
+        self.store = store
+        if store is None:
+            print 'Creating SPARQLStore for %s' % self.sparql_endpoint
+            store = SPARQLStore(self.sparql_endpoint)
+            self.graph = Graph(store)
+        else:
+            self.graph = Graph(store, identifier=self.identifier)
+            
         self.subprocess = subprocess
+            
         if proxy != None:
             print 'Initilizing proxy...'
             proxy = urllib2.ProxyHandler({'http': urlparse(proxy).netloc})
@@ -81,8 +91,8 @@ class SWAnalyzer:
 
     #@abc.abstractmethod
     def open(self):
-       self.graph.open(self.configstring, create=True)
-       return
+        if self.store is not None:
+            self.graph.open(self.configstring, create=True)
 
     def close(self):
         self.graph.destroy(self.configstring)
@@ -108,8 +118,7 @@ class SWAnalyzer:
         
     def get_subjects(self):
         query = 'SELECT DISTINCT ?s WHERE { ?s ?p ?o }'
-        qres = self.graph.query(query, processor='sparql')
-        subject_list = []
+        qres = self.graph.query(query)
         return qres.result
         
     def get_objects(self):
@@ -184,11 +193,7 @@ FILTER (!isBlank(?s) && !isBlank(?o) && regex(str(?s), "''' + self.uri_pattern +
     def get_pattern(self, collection):
         processes = 10
         collection = [e for e in collection if e.find('http://') == 0]
-        #initial = time.time()
         result = namespace_finder.find_pattern(collection, branches = processes, subprocesses = False, verbose = False)
-        #end = time.time()
-        #print "%s elements. %s processes, result: %s; time: %.2f second" % (len(collection), processes, str(result), end - initial)
-        #print result
         return result
 
     def get_patterns(self, uri_list):
