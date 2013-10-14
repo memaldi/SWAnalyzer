@@ -178,7 +178,7 @@ class SWAnalyzer:
         predicates = {}
         for p in self.get_properties():
             predicate = str(p[0].encode('utf-8'))
-            predicates[predicate] = self.get_property_count(predicate)
+            predicates[predicate] = self.get_properties_count(predicate)
         return predicates
         
     def get_property(self, property_name):
